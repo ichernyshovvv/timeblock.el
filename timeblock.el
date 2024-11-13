@@ -759,7 +759,8 @@ Return t on success, otherwise - nil."
       (dom-set-attribute node 'orig-fill (dom-attr node 'fill)))
     (dom-set-attribute node 'fill (face-attribute 'tb-select :background))
     (dom-set-attribute node 'select t)
-    (svg-possibly-update-image svg)))
+    (svg-possibly-update-image svg)
+    t))
 
 (defun tb-left ()
   "Select the previous timeblock in *timeblock* buffer.
@@ -776,7 +777,8 @@ Return t on success, otherwise - nil."
       (dom-set-attribute node 'orig-fill (dom-attr node 'fill)))
     (dom-set-attribute node 'fill (face-attribute 'tb-select :background))
     (dom-set-attribute node 'select t)
-    (svg-possibly-update-image svg)))
+    (svg-possibly-update-image svg)
+    t))
 
 (defun tb-up ()
   "Select the previous timeblock in *timeblock* buffer.
