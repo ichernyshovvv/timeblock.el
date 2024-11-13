@@ -687,6 +687,17 @@ Otherwise, return nil."
         (dom-set-attribute node 'fill (dom-attr node 'orig-fill))))
     (svg-possibly-update-image svg)))
 
+(defun tb--upper-block (svg y)
+  (car
+   (seq-sort
+    (lambda (x y) (> (dom-attr x 'y) (dom-attr y 'y)))
+    (dom-search svg
+                (lambda (node)
+                  (and
+                   (dom-attr node 'id)
+                   (dom-attr node 'y)
+                   (< (dom-attr node 'y) y)))))))
+
 (defun tb--lower-block (svg y)
   (car
    (seq-sort
@@ -719,17 +730,6 @@ Otherwise, return nil."
                    (dom-attr node 'id)
                    (= (dom-attr node 'y) (cdr pos))
                    (< (dom-attr node 'x) (car pos))))))))
-
-(defun tb--upper-block (svg y)
-  (car
-   (seq-sort
-    (lambda (x y) (> (dom-attr x 'y) (dom-attr y 'y)))
-    (dom-search svg
-                (lambda (node)
-                  (and
-                   (dom-attr node 'id)
-                   (dom-attr node 'y)
-                   (< (dom-attr node 'y) y)))))))
 
 (defun tb-down ()
   "Select the next timeblock in *timeblock* buffer."
