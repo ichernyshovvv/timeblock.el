@@ -50,12 +50,6 @@
   :link '(url-link "https://github.com/ichernyshovvv/timeblock")
   :group 'applications)
 
-(defcustom tb-display-time t
-  "Non-nil means show end and start time inside timeblocks."
-  :type '(choice
-          (const :tag "Show time." t)
-          (const :tag "Do not show time." nil)))
-
 (defcustom tb-scale-options t
   "Options that are used to decide which part of visual schedule must be hidden."
   :type '(choice
@@ -339,7 +333,7 @@ save it and return."
 
 (defun tb-add-display-data (svg entries)
   (map-let (min-hour max-hour date left-padding height scale y-start
-                     all-day-section-y-start)
+                     all-day-section-y-start display-time)
       (dom-attributes svg)
     (let ((all-day-y all-day-section-y-start))
       (cl-loop
@@ -360,7 +354,7 @@ save it and return."
                  (cons 'y y)))
             (list
              (cons 'time-string
-                   (and tb-display-time
+                   (and display-time
                         (not (or end-date-later-p start-date-earlier-p))
                         (concat
                          (tb-format-time " %H:%M" start)
@@ -446,7 +440,8 @@ save it and return."
 
 (cl-defun tb-make-column
     (entries date width height
-             &optional min-hour max-hour show-date show-all-day-entries)
+             &optional min-hour max-hour show-date show-all-day-entries
+             display-time)
   "Make timeblock column."
   (let* ((max-hour (or max-hour
                        (if (consp tb-scale-options)
@@ -482,7 +477,8 @@ save it and return."
                           :left-padding (* 2 (default-font-width))
                           :y-start y-start :date date :show-date show-date
                           :show-all-day-entries show-all-day-entries
-                          :all-day-section-y-start date-header-height))
+                          :all-day-section-y-start date-header-height
+                          :display-time display-time))
          (entries-filtered (tb-filter-for-scope svg entries)))
     (and show-date (tb-add-date-header svg date))
     (tb-add-hour-lines! svg)
@@ -498,7 +494,7 @@ save it and return."
   (when-let* ((svg (get-text-property (point) 'dom)))
     (let ((keymap (get-text-property (point) 'keymap))
           (entries-function (get-text-property (point) 'entries-function)))
-      (map-let ( width height min-hour max-hour
+      (map-let ( width height min-hour max-hour display-time
                  date show-date show-all-day-entries entries)
           (dom-attributes svg)
         (set-marker (dom-attr svg :image) nil)
@@ -507,7 +503,7 @@ save it and return."
                           :show-all-day-entries show-all-day-entries
                           :min-hour min-hour :max-hour max-hour
                           :keymap keymap :entries-function entries-function
-                          :show-date show-date)
+                          :show-date show-date :display-time display-time)
         (backward-char 1)))))
 
 (defun tb-update-column ()
@@ -515,25 +511,28 @@ save it and return."
   (when-let* ((svg (get-text-property (point) 'dom))
               (entries-function (get-text-property (point) 'entries-function)))
     (let ((keymap (get-text-property (point) 'keymap)))
-      (map-let ( width height min-hour max-hour
+      (map-let ( width height min-hour max-hour display-time
                  date show-date show-all-day-entries entries)
           (dom-attributes svg)
+        (set-marker (dom-attr svg :image) nil)
         (let ((entries (funcall entries-function)))
           (delete-char 1)
           (tb-insert-column
            entries date width height
            :keymap keymap :min-hour min-hour :max-hour max-hour
            :show-all-day-entries show-all-day-entries
-           :show-date show-date :entries-function entries-function)
+           :show-date show-date :entries-function entries-function
+           :display-time display-time)
           (backward-char 1))))))
 
 (cl-defun tb-insert-column
     (entries date width height &key min-hour max-hour
-             keymap show-date show-all-day-entries entries-function)
+             keymap show-date show-all-day-entries entries-function
+             display-time)
   "Insert timeblock column into the current buffer."
   (let ((svg (tb-make-column entries date width height
                              min-hour max-hour show-date
-                             show-all-day-entries)))
+                             show-all-day-entries display-time)))
     (svg-insert-image svg)
     (add-text-properties (1- (point)) (point)
                          (list 'keymap keymap 'dom svg
@@ -797,13 +796,17 @@ Return t on success, otherwise - nil."
 
 (defun tb-insert-view (entries start-date end-date width height
                                &optional min-hour max-hour show-date
-                               show-all-day-entries keymap)
-  (dolist (date (tb-get-dates start-date end-date))
-    (tb-insert-column entries date width height
-                      :show-all-day-entries show-all-day-entries
-                      :min-hour min-hour :max-hour max-hour
-                      :keymap keymap :show-date show-date)
-    (insert " ")))
+                               show-all-day-entries keymap display-time
+                               entries-function)
+  (let ((dates (tb-get-dates start-date end-date)))
+    (dolist (date dates)
+      (tb-insert-column entries date (/ width (length dates)) height
+                        :show-all-day-entries show-all-day-entries
+                        :min-hour min-hour :max-hour max-hour
+                        :keymap keymap :show-date show-date
+                        :display-time display-time
+                        :entries-function entries-function)
+      (insert " "))))
 
 ;;;; Footer
 
