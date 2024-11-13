@@ -440,8 +440,7 @@ save it and return."
 
 (cl-defun tb-make-column
     (entries date width height
-             &optional min-hour max-hour show-date show-all-day-entries
-             show-time)
+             &key min-hour max-hour show-date show-all-day-entries show-time)
   "Make timeblock column."
   (let* ((max-hour (or max-hour
                        (if (consp tb-scale-options)
@@ -531,8 +530,9 @@ save it and return."
              show-time)
   "Insert timeblock column into the current buffer."
   (let ((svg (tb-make-column entries date width height
-                             min-hour max-hour show-date
-                             show-all-day-entries show-time)))
+                             :min-hour min-hour :max-hour max-hour
+                             :show-date show-date :show-time show-time
+                             :show-all-day-entries show-all-day-entries)))
     (svg-insert-image svg)
     (add-text-properties (1- (point)) (point)
                          (list 'keymap keymap 'dom svg
