@@ -809,7 +809,8 @@ Return t on success, otherwise - nil."
                         :keymap keymap :show-date show-date
                         :show-time show-time
                         :entries-function entries-function)
-      (insert " "))))
+      (insert " "))
+    (delete-char -1)))
 
 ;;;; Footer
 
