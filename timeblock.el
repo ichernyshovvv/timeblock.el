@@ -638,8 +638,9 @@ Otherwise, return nil."
     (dom-set-attribute
      node 'fill (if (dom-attr node 'mark)
                     (face-attribute 'tb-mark :background)
-                  (or (dom-attr node 'orig-fill) "#ffffff")))
+                  (dom-attr node 'orig-fill)))
     (dom-remove-attribute node 'select)
+    (dom-remove-attribute node 'orig-fill)
     (cons (dom-attr node 'x) (dom-attr node 'y))))
 
 (defun tb-mark ()
