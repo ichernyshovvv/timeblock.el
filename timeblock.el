@@ -448,8 +448,7 @@ save it and return."
          (y-start (+ date-header-height all-day-entries-header-height
                      (/ (aref (font-info (face-font 'default)) 2) 2)))
          (svg (svg-create width height
-                          :max-hour max-hour :min-hour min-hour
-                          :scope scope
+                          :max-hour max-hour :min-hour min-hour :scope scope
                           :scale (/ (- height y-start)
                                     (* (- max-hour min-hour) 60.0))
                           :left-padding (* 2 (default-font-width))
@@ -480,9 +479,9 @@ save it and return."
         (delete-char 1)
         (tb-insert-column entries date width height
                           :show-all-day-entries show-all-day-entries
-                          :scope scope
-                          :keymap keymap :entries-function entries-function
-                          :show-date show-date :show-time show-time)
+                          :show-time show-time :keymap keymap
+                          :entries-function entries-function :scope scope
+                          :show-date show-date)
         (backward-char 1)))))
 
 (defun tb-update-column ()
