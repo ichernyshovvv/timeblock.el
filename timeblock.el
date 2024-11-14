@@ -249,9 +249,7 @@ save it and return."
          ;; Appending generated rectangle for current entry
          (svg-rectangle
           svg x y block-width block-height
-          :stroke "#cdcdcd"
-          :stroke-width 1
-          :opacity "0.7"
+          :stroke "#cdcdcd" :stroke-width 1 :opacity "0.7"
           :title (alist-get 'title entry)
           :fill
           (face-attribute
@@ -281,9 +279,8 @@ save it and return."
       (while (< (cl-incf lines-iter) max-hour)
         (setq y (+ y-start (round (* scale (- lines-iter min-hour) 60))))
         (svg-line svg left-padding y width y
-                  :stroke-dasharray "4"
-                  :stroke (face-attribute 'tb-hours-line :background nil t)
-                  :hour lines-iter)
+                  :stroke-dasharray "4" :hour lines-iter
+                  :stroke (face-attribute 'tb-hours-line :background nil t))
         (svg-text svg (format "%d" lines-iter)
                   :y (+ y 5) :x 0
                   :fill (face-attribute 'default :foreground))))))
@@ -441,8 +438,7 @@ save it and return."
             (`nil 0)
             (_ (cl-loop for x in
                         (cons
-                         (unless (eq scope 'hide-all)
-                           (dt-hour (decode-time)))
+                         (unless (eq scope 'hide-all) (dt-hour (decode-time)))
                          (mapcar (lambda (entry)
                                    (let ((start (alist-get 'start entry)))
                                      (if (tb-date< start date)
@@ -518,11 +514,10 @@ save it and return."
              show-time show-current-time face)
   "Insert timeblock column into the current buffer."
   (let ((svg (tb-make-column entries date width height
-                             :scope scope
+                             :scope scope :face face
                              :show-date show-date :show-time show-time
                              :show-all-day-entries show-all-day-entries
-                             :show-current-time show-current-time
-                             :face face)))
+                             :show-current-time show-current-time)))
     (svg-insert-image svg)
     (add-text-properties (1- (point)) (point)
                          (list 'keymap keymap 'dom svg
@@ -827,12 +822,10 @@ Return t on success, otherwise - nil."
     (dolist (date dates)
       (tb-insert-column entries date (/ width (length dates)) height
                         :show-all-day-entries show-all-day-entries
-                        :scope scope
+                        :scope scope :face face :show-time show-time
                         :keymap keymap :show-date show-date
-                        :show-time show-time
                         :entries-function entries-function
-                        :show-current-time show-current-time
-                        :face face)
+                        :show-current-time show-current-time)
       (insert (propertize " " 'display "")))
     (delete-char -1)))
 
