@@ -305,7 +305,7 @@ save it and return."
                     (throw 'found-column k))))))
       (push entry placed))))
 
-(defun tb-add-date-header (svg date)
+(defun tb-add-date-header! (svg date)
   (let* ((width (dom-attr svg 'width))
          (face (dom-attr svg 'face))
          (font-size (aref (font-info (face-font face)) 2)))
@@ -467,10 +467,9 @@ save it and return."
                           :all-day-section-y-start date-header-height
                           :show-time show-time))
          (entries-filtered (tb-filter-for-scope svg entries)))
-    (and show-date (tb-add-date-header svg date))
+    (and show-date (tb-add-date-header! svg date))
+    (and show-current-time (tb-add-current-time-line! svg))
     (tb-add-hour-lines! svg)
-    (when show-current-time
-      (tb-add-current-time-line! svg))
     (seq-reduce
      (lambda (entries func) (funcall func svg entries))
      '( tb-add-display-data tb-place-algorithm tb-add-blocks)
