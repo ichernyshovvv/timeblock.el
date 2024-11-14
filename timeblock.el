@@ -52,6 +52,7 @@
 (defvar-keymap tb-column-map
   "<mouse-1>" #'tb-select-with-cursor
   "<drag-mouse-1>" #'tb-handle-drag
+  "<remap> <isearch-forward>" #'tb-jump
   "<remap> <right-char>" #'tb-right
   "<remap> <left-char>" #'tb-left
   "<remap> <next-line>" #'tb-down
@@ -561,6 +562,26 @@ SLOT should be specified as a plain symbol, not a keyword."
     time))
 
 ;;;; Navigation commands
+
+(defun tb-jump (id)
+  "Jump to a block with ID."
+  (interactive (list (get-text-property
+                      0 'id
+                      (completing-read
+                       "Block: "
+                       (when-let* ((svg (get-text-property (point) 'dom))
+                                   (entries (dom-attr svg 'entries)))
+                         (cl-loop
+                          for e in entries for inx from 0 collect
+                          (propertize (alist-get 'title e) 'id inx)))))))
+  (when-let* ((svg (get-text-property (point) 'dom))
+              (node (dom-by-id svg (number-to-string id))))
+    (tb-unselect svg)
+    (unless (dom-attr node 'mark)
+      (dom-set-attribute node 'orig-fill (dom-attr node 'fill)))
+    (dom-set-attribute node 'fill (face-attribute 'tb-select :background))
+    (dom-set-attribute node 'select t)
+    (svg-possibly-update-image svg)))
 
 (defun tb-handle-drag (event)
   "Draw a line from the start of EVENT to its end."
