@@ -444,7 +444,7 @@ save it and return."
                          (unless (eq scope 'hide-all)
                            (dt-hour (decode-time)))
                          (mapcar (lambda (entry)
-                                   (let ((start (plist-get entry :start)))
+                                   (let ((start (alist-get 'start entry)))
                                      (if (tb-date< start date)
                                          0 (dt-hour start))))
                                  entries))
