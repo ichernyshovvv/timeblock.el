@@ -306,15 +306,15 @@ save it and return."
       (push entry placed))))
 
 (defun tb-add-date-header (svg date)
-  (let ((width (dom-attr svg 'width))
-        (face (dom-attr svg 'face)))
+  (let* ((width (dom-attr svg 'width))
+         (face (dom-attr svg 'face))
+         (font-size (aref (font-info (face-font face)) 2)))
     (svg-rectangle svg 0 0 width (window-font-height nil face)
                    :stroke "#cdcdcd" :stroke-width 1 :opacity "0.7"
                    :fill (face-attribute 'region :background))
     (svg-text svg (format-time-string "%Y-%m-%d %a" (encode-time date))
-              :x 0 :y (aref (font-info (face-font face)) 2)
-              :fill (face-attribute 'default :foreground)
-              :font-size (aref (font-info (face-font face)) 2))))
+              :x 0 :y font-size :font-size font-size
+              :fill (face-attribute 'default :foreground))))
 
 (defun tb-add-display-data (svg entries)
   (map-let (min-hour max-hour date left-padding height scale y-start
