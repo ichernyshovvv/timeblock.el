@@ -463,7 +463,7 @@ save it and return."
                           :show-all-day-entries show-all-day-entries
                           :all-day-section-y-start date-header-height
                           :show-time show-time))
-         (entries-filtered (tb-filter-for-scope svg entries)))
+         (entries-filtered (tb-filter svg entries)))
     (and show-date (tb-add-date-header! svg date))
     (and show-current-time (tb-add-current-time-line! svg))
     (tb-add-hour-lines! svg)
@@ -524,7 +524,7 @@ save it and return."
                          (list 'keymap keymap 'dom svg
                                'entries-function entries-function))))
 
-(defun tb-filter-for-scope (svg entries)
+(defun tb-filter (svg entries)
   "entry format: "
   (map-let (date min-hour max-hour) (dom-attributes svg)
     (seq-filter
