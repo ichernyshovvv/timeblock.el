@@ -43,13 +43,6 @@
 (require 'cl-lib)
 (require 'timeblock-faces)
 
-;;;; Custom Variables
-
-(defgroup timeblock nil
-  "Customization for `timeblock'."
-  :link '(url-link "https://github.com/ichernyshovvv/timeblock")
-  :group 'applications)
-
 ;;;; Variables
 
 (defvar tb-colors nil)
