@@ -570,7 +570,7 @@ SLOT should be specified as a plain symbol, not a keyword."
               (svg (get-text-property (point) 'dom)))
     (message "HOUR: %s" (tb-hour-under-cursor svg nil (cdr end)))))
 
-(defun tb-block-under-cursor (svg cursor-x cursor-y)
+(defun tb-block-at-position (svg cursor-x cursor-y)
   (car (dom-search
         svg
         (lambda (node)
@@ -602,7 +602,7 @@ SLOT should be specified as a plain symbol, not a keyword."
   (when-let* ((svg (get-text-property (point) 'dom))
               (posn (posn-object-x-y (event-start event))))
     (tb-unselect svg)
-    (when-let* ((node (tb-block-under-cursor svg (car posn) (cdr posn))))
+    (when-let* ((node (tb-block-at-position svg (car posn) (cdr posn))))
       (unless (dom-attr node 'mark)
         (dom-set-attribute node 'orig-fill (dom-attr node 'fill)))
       (dom-set-attribute node 'fill (face-attribute 'tb-select :background))
