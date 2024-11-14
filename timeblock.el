@@ -182,12 +182,15 @@ save it and return."
   (let* ((width (dom-attr svg 'width))
          (left-padding (dom-attr svg 'left-padding))
          (date (dom-attr svg 'date))
+         (face (dom-attr svg 'face))
+         (font-width (window-font-width nil face))
+         (font-height (window-font-height nil face))
          (block-max-width (- width left-padding)))
     (cl-loop
      for entry in entries for ind from 0
      if (tb-notime-p date entry) do
      (svg-rectangle svg 0 (alist-get 'y entry)
-                    width (default-font-height)
+                    width font-height
                     :stroke "#cdcdcd" :stroke-width 1 :opacity "0.7"
                     :fill (face-attribute
                            (tb-get-saved-random-face
@@ -195,8 +198,8 @@ save it and return."
                            :background nil 'default)
                     :id (number-to-string ind))
      (svg-text svg (alist-get 'title entry)
-               :x 0 :y (+ (alist-get 'y entry) (aref (font-info (face-font 'default)) 2))
-               :font-size (aref (font-info (face-font 'default)) 2)
+               :x 0 :y (+ (alist-get 'y entry) (aref (font-info (face-font face)) 2))
+               :font-size (aref (font-info (face-font face)) 2)
                :fill (face-attribute 'default :foreground))
      else do
      (when-let* ((length
@@ -219,21 +222,21 @@ save it and return."
                                 (alist-get 'n-day-indicator entry)))
                  ;; Splitting the title of an entry
                  (heading-list
-                  (if (> (* (length title) (default-font-width)) block-width)
+                  (if (> (* (length title) font-width) block-width)
                       (seq-take
-                       (seq-partition title (/ block-width (default-font-width)))
-                       (max 1 (/ block-height (default-font-height))))
+                       (seq-partition title (/ block-width font-width))
+                       (max 1 (/ block-height font-height)))
                     `(,title))))
        (let ((time-string (alist-get 'time-string entry)))
-         (when (< (/ block-width (default-font-width)) (length time-string))
+         (when (< (/ block-width font-width) (length time-string))
            (setq time-string nil))
          (when-let* ((time-string)
                      ((< (- block-height
-                            (* (length heading-list) (default-font-height)))
-                         (- (default-font-height) 6)))
+                            (* (length heading-list) font-height))
+                         (- font-height 6)))
                      (diff (- (+ (length (car (last heading-list)))
                                  (length time-string))
-                              (/ block-width (default-font-width))))
+                              (/ block-width font-width)))
                      ((> diff 0)))
            (cl-callf
                (lambda (x)
@@ -254,21 +257,21 @@ save it and return."
            (tb-get-saved-random-face title) :background nil 'default)
           :id (number-to-string ind))
          ;; Setting the title of current entry
-         (let ((y (- y 5)))
+         (let ((y y))
            (dolist (heading-part heading-list)
              (svg-text svg heading-part
-                       :x x :y (cl-incf y (default-font-height))
+                       :x x :y (cl-incf y (aref (font-info (face-font face)) 2))
                        :fill (face-attribute
                               (tb-get-saved-random-face title)
                               :foreground nil 'default)
-                       :font-size (aref (font-info (face-font 'default)) 2))))
+                       :font-size (aref (font-info (face-font face)) 2))))
          (when time-string
            (svg-text svg time-string
                      :x (- (+ x block-width)
-                           (* (length time-string) (default-font-width)))
+                           (* (length time-string) font-width))
                      :y (- (+ y block-height) 2)
                      :fill (face-attribute 'tb-hours-line :background nil t)
-                     :font-size (aref (font-info (face-font 'default)) 2))))))))
+                     :font-size (aref (font-info (face-font face)) 2))))))))
 
 (defun tb-add-hour-lines! (svg)
   (map-let (min-hour max-hour left-padding width scale y-start)
@@ -302,20 +305,23 @@ save it and return."
       (push entry placed))))
 
 (defun tb-add-date-header (svg date)
-  (let ((width (dom-attr svg 'width)))
-    (svg-rectangle svg 0 0 width (default-font-height)
+  (let ((width (dom-attr svg 'width))
+        (face (dom-attr svg 'face)))
+    (svg-rectangle svg 0 0 width (window-font-height nil face)
                    :stroke "#cdcdcd" :stroke-width 1 :opacity "0.7"
                    :fill (face-attribute 'region :background))
     (svg-text svg (format-time-string "%Y-%m-%d %a" (encode-time date))
-              :x 0 :y (aref (font-info (face-font 'default)) 2)
+              :x 0 :y (aref (font-info (face-font face)) 2)
               :fill (face-attribute 'default :foreground)
-              :font-size (aref (font-info (face-font 'default)) 2))))
+              :font-size (aref (font-info (face-font face)) 2))))
 
 (defun tb-add-display-data (svg entries)
   (map-let (min-hour max-hour date left-padding height scale y-start
-                     all-day-section-y-start show-time)
+                     all-day-section-y-start show-time
+                     face)
       (dom-attributes svg)
-    (let ((all-day-y all-day-section-y-start))
+    (let ((all-day-y all-day-section-y-start)
+          (font-height (window-font-height nil face)))
       (cl-loop
        for entry in entries
        collect
@@ -328,9 +334,9 @@ save it and return."
          (nconc
           (if all-day-p
               (let ((y all-day-y))
-                (cl-incf all-day-y (default-font-height))
+                (cl-incf all-day-y font-height)
                 (list
-                 (cons 'block-height (default-font-height))
+                 (cons 'block-height font-height)
                  (cons 'y y)))
             (list
              (cons 'time-string
@@ -342,7 +348,7 @@ save it and return."
              (cons 'block-height
                    (1- (if (and start end)
                            (max
-                            (default-font-height)
+                            font-height
                             (round
                              (* (tb-time-diff
                                  (if (or end-date-later-p
@@ -369,7 +375,7 @@ save it and return."
                                        :hour min-hour :minute 0 :second 0)
                                    start))
                                 scale)))
-                         (default-font-height))))
+                         font-height)))
              (cons 'y
                    (if-let* ((value (+ (round (* (if (or start-date-earlier-p
                                                          (tb-decoded<
@@ -385,8 +391,8 @@ save it and return."
                                                       (* min-hour 60)))
                                                  scale))
                                        1 y-start))
-                             ((< (- height value) (default-font-height))))
-                       (- height (default-font-height))
+                             ((< (- height value) font-height)))
+                       (- height font-height)
                      value))
              (cons 'n-day-indicator
                    (cond
@@ -420,9 +426,12 @@ save it and return."
 (cl-defun tb-make-column
     (entries date width height
              &key scope show-date show-all-day-entries show-time
-             show-current-time)
+             show-current-time face)
   "Make timeblock column."
-  (let* ((max-hour (if (consp scope)
+  (let* ((face (or face 'default))
+         (font-height (window-font-height nil face))
+         (font-width (window-font-width nil face))
+         (max-hour (if (consp scope)
                        (min (1+ (cdr scope)) 24)
                      24))
          (min-hour
@@ -439,19 +448,19 @@ save it and return."
                                          0 (dt-hour start))))
                                  entries))
                         when x minimize x))))
-         (date-header-height (if show-date (default-font-height) 0))
+         (date-header-height (if show-date font-height 0))
          (allday-entries-count
           (when show-all-day-entries
             (seq-count (apply-partially #'tb-notime-p date) entries)))
-         (all-day-entries-header-height
-          (* allday-entries-count (default-font-height)))
+         (all-day-entries-header-height (* allday-entries-count font-height))
          (y-start (+ date-header-height all-day-entries-header-height
-                     (/ (aref (font-info (face-font 'default)) 2) 2)))
+                     (/ (aref (font-info (face-font face)) 2) 2)))
          (svg (svg-create width height
                           :max-hour max-hour :min-hour min-hour :scope scope
+                          :face face
                           :scale (/ (- height y-start)
                                     (* (- max-hour min-hour) 60.0))
-                          :left-padding (* 2 (default-font-width))
+                          :left-padding (* 2 (window-font-width nil face))
                           :y-start y-start :date date :show-date show-date
                           :show-all-day-entries show-all-day-entries
                           :all-day-section-y-start date-header-height
@@ -506,13 +515,14 @@ save it and return."
 (cl-defun tb-insert-column
     (entries date width height &key scope
              keymap show-date show-all-day-entries entries-function
-             show-time show-current-time)
+             show-time show-current-time face)
   "Insert timeblock column into the current buffer."
   (let ((svg (tb-make-column entries date width height
                              :scope scope
                              :show-date show-date :show-time show-time
                              :show-all-day-entries show-all-day-entries
-                             :show-current-time show-current-time)))
+                             :show-current-time show-current-time
+                             :face face)))
     (svg-insert-image svg)
     (add-text-properties (1- (point)) (point)
                          (list 'keymap keymap 'dom svg
@@ -810,7 +820,7 @@ Return t on success, otherwise - nil."
                                   (dom-attr svg 'entries))))))
 
 (cl-defun tb-insert-view (entries start-date end-date width height
-                                  &key scope show-date
+                                  &key scope show-date face
                                   show-all-day-entries keymap show-time
                                   entries-function show-current-time)
   (let ((dates (tb-get-dates start-date end-date)))
@@ -821,7 +831,8 @@ Return t on success, otherwise - nil."
                         :keymap keymap :show-date show-date
                         :show-time show-time
                         :entries-function entries-function
-                        :show-current-time show-current-time)
+                        :show-current-time show-current-time
+                        :face face)
       (insert (propertize " " 'display "")))
     (delete-char -1)))
 
