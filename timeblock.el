@@ -50,10 +50,6 @@
   :link '(url-link "https://github.com/ichernyshovvv/timeblock")
   :group 'applications)
 
-(defcustom tb-current-time-indicator t
-  "Whether to show current time indicator in the `tb-list' buffer."
-  :type 'boolean)
-
 ;;;; Variables
 
 (defvar tb-colors nil)
@@ -406,17 +402,16 @@ save it and return."
           entry))))))
 
 (defun tb-add-current-time-line! (svg)
-  (when tb-current-time-indicator
-    (map-let (scale min-hour date width y-start) (dom-attributes svg)
-      (when-let* ((now (decode-time))
-                  ((tb-date= date now))
-                  (y (+ (* scale (- (+ (* (dt-hour now) 60) (dt-minute now))
-                                    (* min-hour 60)))
-                        y-start)))
-        (svg-line svg 0 y width y
-                  :stroke (face-attribute
-                           'tb-current-time-indicator
-                           :background nil t))))))
+  (map-let (scale min-hour date width y-start) (dom-attributes svg)
+    (when-let* ((now (decode-time))
+                ((tb-date= date now))
+                (y (+ (* scale (- (+ (* (dt-hour now) 60) (dt-minute now))
+                                  (* min-hour 60)))
+                      y-start)))
+      (svg-line svg 0 y width y
+                :stroke (face-attribute
+                         'tb-current-time-indicator
+                         :background nil t)))))
 
 (defun tb-notime-p (date entry)
   (let ((start (alist-get 'start entry))
@@ -430,7 +425,8 @@ save it and return."
 
 (cl-defun tb-make-column
     (entries date width height
-             &key scope show-date show-all-day-entries show-time)
+             &key scope show-date show-all-day-entries show-time
+             show-current-time)
   "Make timeblock column."
   (let* ((max-hour (if (consp scope)
                        (min (1+ (cdr scope)) 24)
@@ -470,7 +466,8 @@ save it and return."
          (entries-filtered (tb-filter-for-scope svg entries)))
     (and show-date (tb-add-date-header svg date))
     (tb-add-hour-lines! svg)
-    (tb-add-current-time-line! svg)
+    (when show-current-time
+      (tb-add-current-time-line! svg))
     (seq-reduce
      (lambda (entries func) (funcall func svg entries))
      '( tb-add-display-data tb-place-algorithm tb-add-blocks)
@@ -516,12 +513,13 @@ save it and return."
 (cl-defun tb-insert-column
     (entries date width height &key scope
              keymap show-date show-all-day-entries entries-function
-             show-time)
+             show-time show-current-time)
   "Insert timeblock column into the current buffer."
   (let ((svg (tb-make-column entries date width height
                              :scope scope
                              :show-date show-date :show-time show-time
-                             :show-all-day-entries show-all-day-entries)))
+                             :show-all-day-entries show-all-day-entries
+                             :show-current-time show-current-time)))
     (svg-insert-image svg)
     (add-text-properties (1- (point)) (point)
                          (list 'keymap keymap 'dom svg
@@ -789,7 +787,7 @@ Return t on success, otherwise - nil."
 (defun tb-insert-view (entries start-date end-date width height
                                &optional scope show-date
                                show-all-day-entries keymap show-time
-                               entries-function)
+                               entries-function show-current-time)
   (let ((dates (tb-get-dates start-date end-date)))
     (dolist (date dates)
       (tb-insert-column entries date (/ width (length dates)) height
@@ -797,7 +795,8 @@ Return t on success, otherwise - nil."
                         :scope scope
                         :keymap keymap :show-date show-date
                         :show-time show-time
-                        :entries-function entries-function)
+                        :entries-function entries-function
+                        :show-current-time show-current-time)
       (insert (propertize " " 'display "")))
     (delete-char -1)))
 
