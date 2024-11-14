@@ -185,6 +185,7 @@ save it and return."
          (face (dom-attr svg 'face))
          (font-width (window-font-width nil face))
          (font-height (window-font-height nil face))
+         (font-size (aref (font-info (face-font face)) 2))
          (block-max-width (- width left-padding)))
     (cl-loop
      for entry in entries for ind from 0
@@ -198,8 +199,8 @@ save it and return."
                            :background nil 'default)
                     :id (number-to-string ind))
      (svg-text svg (alist-get 'title entry)
-               :x 0 :y (+ (alist-get 'y entry) (aref (font-info (face-font face)) 2))
-               :font-size (aref (font-info (face-font face)) 2)
+               :x 0 :y (+ (alist-get 'y entry) font-size)
+               :font-size font-size
                :fill (face-attribute 'default :foreground))
      else do
      (when-let* ((length
@@ -257,21 +258,21 @@ save it and return."
            (tb-get-saved-random-face title) :background nil 'default)
           :id (number-to-string ind))
          ;; Setting the title of current entry
-         (let ((y y))
-           (dolist (heading-part heading-list)
-             (svg-text svg heading-part
-                       :x x :y (cl-incf y (aref (font-info (face-font face)) 2))
-                       :fill (face-attribute
-                              (tb-get-saved-random-face title)
-                              :foreground nil 'default)
-                       :font-size (aref (font-info (face-font face)) 2))))
+         (cl-loop for heading-part in heading-list
+                  for title-y from (+ y font-size) by font-size do
+                  (svg-text svg heading-part
+                            :x x :y title-y
+                            :fill (face-attribute
+                                   (tb-get-saved-random-face title)
+                                   :foreground nil 'default)
+                            :font-size font-size))
          (when time-string
            (svg-text svg time-string
                      :x (- (+ x block-width)
                            (* (length time-string) font-width))
                      :y (- (+ y block-height) 2)
                      :fill (face-attribute 'tb-hours-line :background nil t)
-                     :font-size (aref (font-info (face-font face)) 2))))))))
+                     :font-size font-size)))))))
 
 (defun tb-add-hour-lines! (svg)
   (map-let (min-hour max-hour left-padding width scale y-start)
