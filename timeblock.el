@@ -444,7 +444,8 @@ save it and return."
                                      (if (tb-date< start date)
                                          0 (dt-hour start))))
                                  entries))
-                        when x minimize x))))
+                        when x minimize x
+                        finally return (or x 0)))))
          (date-header-height (if show-date font-height 0))
          (allday-entries-count
           (when show-all-day-entries
