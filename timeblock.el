@@ -178,7 +178,7 @@ save it and return."
   "Return random timeblock color face."
   (seq-random-elt '(tb-red tb-green tb-yellow tb-blue tb-magenta tb-cyan)))
 
-(defun tb-add-blocks (svg entries)
+(defun tb-add-blocks! (svg entries)
   (let* ((width (dom-attr svg 'width))
          (left-padding (dom-attr svg 'left-padding))
          (date (dom-attr svg 'date))
@@ -469,7 +469,7 @@ save it and return."
     (tb-add-hour-lines! svg)
     (seq-reduce
      (lambda (entries func) (funcall func svg entries))
-     '( tb-add-display-data tb-place-algorithm tb-add-blocks)
+     '( tb-add-display-data tb-place-algorithm tb-add-blocks!)
      entries-filtered)
     (dom-set-attribute svg 'entries (copy-tree entries-filtered))
     svg))
