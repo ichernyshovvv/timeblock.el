@@ -809,10 +809,10 @@ Return t on success, otherwise - nil."
                              (nth (string-to-number (dom-attr node 'id))
                                   (dom-attr svg 'entries))))))
 
-(defun tb-insert-view (entries start-date end-date width height
-                               &optional scope show-date
-                               show-all-day-entries keymap show-time
-                               entries-function show-current-time)
+(cl-defun tb-insert-view (entries start-date end-date width height
+                                  &key scope show-date
+                                  show-all-day-entries keymap show-time
+                                  entries-function show-current-time)
   (let ((dates (tb-get-dates start-date end-date)))
     (dolist (date dates)
       (tb-insert-column entries date (/ width (length dates)) height
