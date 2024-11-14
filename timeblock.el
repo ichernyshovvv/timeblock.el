@@ -50,16 +50,6 @@
   :link '(url-link "https://github.com/ichernyshovvv/timeblock")
   :group 'applications)
 
-(defcustom tb-scale-options t
-  "Options that are used to decide which part of visual schedule must be hidden."
-  :type '(choice
-          (const :tag "Hide hours in the past (if there are no timeblocks)." t)
-          (const :tag "Do not hide anything.  All 24 hours will be displayed." nil)
-          (const :tag "Hide all free hours before the first timeblock." hide-all)
-          (cons :tag "Display specified range of hours [earliest; latest)."
-                (integer :tag "Min Hour")
-                (integer :tag "Max Hour"))))
-
 (defcustom tb-current-time-indicator t
   "Whether to show current time indicator in the `tb-list' buffer."
   :type 'boolean)
@@ -440,27 +430,25 @@ save it and return."
 
 (cl-defun tb-make-column
     (entries date width height
-             &key min-hour max-hour show-date show-all-day-entries show-time)
+             &key scope show-date show-all-day-entries show-time)
   "Make timeblock column."
-  (let* ((max-hour (or max-hour
-                       (if (consp tb-scale-options)
-                           (min (1+ (cdr tb-scale-options)) 24)
-                         24)))
+  (let* ((max-hour (if (consp scope)
+                       (min (1+ (cdr scope)) 24)
+                     24))
          (min-hour
-          (or min-hour
-              (pcase tb-scale-options
-                ((pred consp) (car tb-scale-options))
-                (`nil 0)
-                (_ (cl-loop for x in
-                            (cons
-                             (unless (eq tb-scale-options 'hide-all)
-                               (dt-hour (decode-time)))
-                             (mapcar (lambda (entry)
-                                       (let ((start (plist-get entry :start)))
-                                         (if (tb-date< start date)
-                                             0 (dt-hour start))))
-                                     entries))
-                            when x minimize x)))))
+          (pcase scope
+            ((pred consp) (car scope))
+            (`nil 0)
+            (_ (cl-loop for x in
+                        (cons
+                         (unless (eq scope 'hide-all)
+                           (dt-hour (decode-time)))
+                         (mapcar (lambda (entry)
+                                   (let ((start (plist-get entry :start)))
+                                     (if (tb-date< start date)
+                                         0 (dt-hour start))))
+                                 entries))
+                        when x minimize x))))
          (date-header-height (if show-date (default-font-height) 0))
          (allday-entries-count
           (when show-all-day-entries
@@ -471,6 +459,7 @@ save it and return."
                      (/ (aref (font-info (face-font 'default)) 2) 2)))
          (svg (svg-create width height
                           :max-hour max-hour :min-hour min-hour
+                          :scope scope
                           :scale (/ (- height y-start)
                                     (* (- max-hour min-hour) 60.0))
                           :left-padding (* 2 (default-font-width))
@@ -493,14 +482,14 @@ save it and return."
   (when-let* ((svg (get-text-property (point) 'dom)))
     (let ((keymap (get-text-property (point) 'keymap))
           (entries-function (get-text-property (point) 'entries-function)))
-      (map-let ( width height min-hour max-hour show-time
+      (map-let ( width height scope show-time
                  date show-date show-all-day-entries entries)
           (dom-attributes svg)
         (set-marker (dom-attr svg :image) nil)
         (delete-char 1)
         (tb-insert-column entries date width height
                           :show-all-day-entries show-all-day-entries
-                          :min-hour min-hour :max-hour max-hour
+                          :scope scope
                           :keymap keymap :entries-function entries-function
                           :show-date show-date :show-time show-time)
         (backward-char 1)))))
@@ -518,19 +507,19 @@ save it and return."
           (delete-char 1)
           (tb-insert-column
            entries date width height
-           :keymap keymap :min-hour min-hour :max-hour max-hour
+           :keymap keymap :scope scope
            :show-all-day-entries show-all-day-entries
            :show-date show-date :entries-function entries-function
            :show-time show-time)
           (backward-char 1))))))
 
 (cl-defun tb-insert-column
-    (entries date width height &key min-hour max-hour
+    (entries date width height &key scope
              keymap show-date show-all-day-entries entries-function
              show-time)
   "Insert timeblock column into the current buffer."
   (let ((svg (tb-make-column entries date width height
-                             :min-hour min-hour :max-hour max-hour
+                             :scope scope
                              :show-date show-date :show-time show-time
                              :show-all-day-entries show-all-day-entries)))
     (svg-insert-image svg)
@@ -798,14 +787,14 @@ Return t on success, otherwise - nil."
     (svg-possibly-update-image svg)))
 
 (defun tb-insert-view (entries start-date end-date width height
-                               &optional min-hour max-hour show-date
+                               &optional scope show-date
                                show-all-day-entries keymap show-time
                                entries-function)
   (let ((dates (tb-get-dates start-date end-date)))
     (dolist (date dates)
       (tb-insert-column entries date (/ width (length dates)) height
                         :show-all-day-entries show-all-day-entries
-                        :min-hour min-hour :max-hour max-hour
+                        :scope scope
                         :keymap keymap :show-date show-date
                         :show-time show-time
                         :entries-function entries-function)
