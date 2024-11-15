@@ -49,7 +49,7 @@
               (entries (dom-attr svg 'entries))
               (block-id
                (dom-attr
-                (timeblock-block-under-cursor svg (car start) (cdr start)) 'id))
+                (timeblock-block-at-position svg (car start) (cdr start)) 'id))
               (entry (nth (string-to-number block-id) entries))
               (hour (timeblock-hour-under-cursor svg nil (cdr end))))
     (let* ((start-ts (alist-get 'start entry))
