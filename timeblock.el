@@ -52,7 +52,7 @@
 (defvar-keymap tb-column-map
   "<mouse-1>" #'tb-select-with-cursor
   "<drag-mouse-1>" #'tb-handle-drag
-  "<remap> <isearch-forward>" #'tb-jump
+  "<remap> <imenu>" #'tb-jump
   "<remap> <right-char>" #'tb-right
   "<remap> <left-char>" #'tb-left
   "<remap> <next-line>" #'tb-down
@@ -479,7 +479,7 @@ save it and return."
   (when-let* ((svg (get-text-property (point) 'dom)))
     (let ((keymap (get-text-property (point) 'keymap))
           (entries-function (get-text-property (point) 'entries-function)))
-      (map-let ( width height scope show-time
+      (map-let ( width height scope show-time face show-current-time
                  date show-date show-all-day-entries entries)
           (dom-attributes svg)
         (set-marker (dom-attr svg :image) nil)
@@ -488,7 +488,8 @@ save it and return."
                           :show-all-day-entries show-all-day-entries
                           :show-time show-time :keymap keymap
                           :entries-function entries-function :scope scope
-                          :show-date show-date)
+                          :show-current-time show-current-time
+                          :show-date show-date :face face)
         (backward-char 1)))))
 
 (defun tb-update-column ()
