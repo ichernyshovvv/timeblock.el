@@ -21,7 +21,7 @@
   (timeblock-insert-column
    entries date 200 350
    :show-date t :show-all-day-entries t
-   :min-hour 6 :max-hour 22
+   :scope '(6 . 24)
    :keymap (let ((map timeblock-column-map))
              (keymap-set map "e" #'timeblock-reschedule)
              (keymap-set map "<drag-mouse-1>" #'timeblock-drag-n-drop)
