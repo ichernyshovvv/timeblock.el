@@ -448,8 +448,9 @@ save it and return."
                         finally return (or x 0)))))
          (date-header-height (if show-date font-height 0))
          (allday-entries-count
-          (when show-all-day-entries
-            (seq-count (apply-partially #'tb-notime-p date) entries)))
+          (if show-all-day-entries
+              (seq-count (apply-partially #'tb-notime-p date) entries)
+            0))
          (all-day-entries-header-height (* allday-entries-count font-height))
          (y-start (+ date-header-height all-day-entries-header-height
                      (/ (aref (font-info (face-font face)) 2) 2)))
@@ -526,12 +527,13 @@ save it and return."
 
 (defun tb-filter (svg entries)
   "entry format: "
-  (map-let (date min-hour max-hour) (dom-attributes svg)
+  (map-let (date min-hour max-hour show-all-day-entries) (dom-attributes svg)
     (seq-filter
      (lambda (x)
        (let ((start (alist-get 'start x)) (end (alist-get 'end x))
              (title (alist-get 'title x)))
          (and
+          (or show-all-day-entries (dt-hour start))
           (or (tb-date= start date)
               (when-let* ((end (alist-get 'end x)))
                 (and (tb-date< start date)
