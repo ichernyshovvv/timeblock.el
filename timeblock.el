@@ -241,25 +241,6 @@ KEYMAP is a keymap to use when the point is on the column."
        (encode-time a)
        (encode-time b)))))
 
-(defun tb-decoded= (a b)
-  "Return non-nil if A is earlier then B."
-  (cond
-   ;; nil is less than non-nil
-   ((not b) nil)
-   ((not a) t)
-   (t (time-equal-p (encode-time a) (encode-time b)))))
-
-(defun tb-time< (a b)
-  "Return non-nil if A's time is earlier then B's time.
-Compare only hours and minutes."
-  (cond
-   ;; nil is less than non-nil
-   ((not b) nil)
-   ((not a) t)
-   (t (or (tb-on dt-hour < a b)
-          (and (tb-on dt-hour = a b)
-               (tb-on dt-minute < a b))))))
-
 (defun tb-date<= (a b)
   "Return non-nil if A's date is <= B's date."
   (cond
