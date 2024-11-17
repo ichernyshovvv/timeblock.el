@@ -773,7 +773,8 @@ Otherwise, return nil."
                    (< (dom-attr node 'x) (car pos))))))))
 
 (defun tb-down ()
-  "Select the next timeblock in *timeblock* buffer."
+  "Select the lower block.
+If not found, select the first block from the top."
   (interactive)
   (when-let* ((svg (get-text-property (point) 'dom))
               (unsel-y (or (cdr (tb-unselect svg)) (dom-attr svg 'height)))
@@ -782,8 +783,7 @@ Otherwise, return nil."
     (tb--select svg node)))
 
 (defun tb-right ()
-  "Select the previous timeblock in *timeblock* buffer.
-Return t on success, otherwise - nil."
+  "Select the block on the right.  If not found, return nil."
   (interactive)
   (when-let* ((svg (get-text-property (point) 'dom))
               (selected-node (tb-get-selected svg))
@@ -795,8 +795,7 @@ Return t on success, otherwise - nil."
     t))
 
 (defun tb-left ()
-  "Select the previous timeblock in *timeblock* buffer.
-Return t on success, otherwise - nil."
+  "Select the block on the left.  If not found, return nil."
   (interactive)
   (when-let* ((svg (get-text-property (point) 'dom))
               (selected-node (tb-get-selected svg))
@@ -822,8 +821,8 @@ Return t on success, otherwise - nil."
    'hour))
 
 (defun tb-up ()
-  "Select the previous timeblock in *timeblock* buffer.
-Return t on success, otherwise - nil."
+  "Select the lower block.
+If not found, select the first block from the bottom."
   (interactive)
   (when-let* ((svg (get-text-property (point) 'dom))
               (unsel-y (or (cdr (tb-unselect svg)) 0))
