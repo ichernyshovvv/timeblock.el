@@ -28,9 +28,7 @@
              (keymap-set map "e" #'timeblock-reschedule)
              (keymap-set map "<drag-mouse-1>" #'timeblock-drag-n-drop)
              map)))
-
  
-
 (defun timeblock-reschedule ()
   (interactive)
   (when-let* ((svg (get-text-property (point) 'dom))

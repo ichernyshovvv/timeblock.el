@@ -140,7 +140,7 @@ the default face is used."
     (and show-current-time (tb-add-current-time-line! svg))
     (tb-add-hour-lines! svg)
     (tb-add-display-data! svg entries-filtered)
-    (tb-place-algorithm svg entries-filtered)
+    (tb-place-horizontally! svg entries-filtered)
     (tb-add-blocks! svg entries-filtered)
     svg))
 
@@ -401,22 +401,25 @@ Otherwise, return nil."
                   :y (+ y 5) :x 0 :font-size font-size
                   :fill (face-attribute 'default :foreground))))))
 
-(defun tb-place-algorithm (_svg entries)
+(defun tb-place-horizontally! (_svg entries)
   "Place ENTRIES horizontally to avoid intersections."
   (let (placed)
-    (dolist (entry entries (nreverse placed))
-      (setf (alist-get 'column entry)
-            (catch 'found-column
-              (let ((k 0))
-                (while t
-                  (catch 'next-column
-                    (dolist (el (seq-filter
-                                 (lambda (x) (eq (alist-get 'column x) k))
-                                 placed))
-                      (and (tb-intersect-p entry el)
-                           (cl-incf k)
-                           (throw 'next-column t)))
-                    (throw 'found-column k))))))
+    (dolist (entry entries)
+      (nconc
+       entry
+       (list
+        (cons 'column
+              (catch 'found-column
+                (let ((k 0))
+                  (while t
+                    (catch 'next-column
+                      (dolist (el (seq-filter
+                                   (lambda (x) (eq (alist-get 'column x) k))
+                                   placed))
+                        (and (tb-intersect-p entry el)
+                             (cl-incf k)
+                             (throw 'next-column t)))
+                      (throw 'found-column k))))))))
       (push entry placed))))
 
 (defun tb-add-date-header! (svg date)
