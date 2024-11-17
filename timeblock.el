@@ -274,10 +274,9 @@ Compare only hours and minutes."
              (and (tb-on dt-month = a b)
                   (tb-on dt-day <= a b))))))))
 
-(defsubst tb-get-saved-random-face (title)
-  "Get saved random color face for TITLE.
-If not found, generate it,
-save it and return."
+(defsubst tb-random-face (title)
+  "Get saved random face for TITLE.
+If not found, generate, save in `tb-colors' and return it."
   (or (alist-get title tb-colors nil nil #'equal)
       (setf (alist-get title tb-colors nil nil #'equal)
             (seq-random-elt
@@ -307,7 +306,7 @@ Otherwise, return nil."
      (svg-rectangle svg 0 (alist-get 'y entry)
                     width font-height
                     :stroke "#cdcdcd" :stroke-width 1
-                    :fill (face-background (tb-get-saved-random-face
+                    :fill (face-background (tb-random-face
                                             (alist-get 'title entry)))
                     :id (number-to-string ind))
      (svg-text svg (alist-get 'title entry)
@@ -362,15 +361,14 @@ Otherwise, return nil."
           svg x y block-width block-height
           :stroke "#cdcdcd" :stroke-width 1
           :title (alist-get 'title entry)
-          :fill (face-background (tb-get-saved-random-face title))
+          :fill (face-background (tb-random-face title))
           :id (number-to-string ind))
          ;; Setting the title of current entry
          (cl-loop for heading-part in heading-list
                   for title-y from (+ y font-size) by font-size do
                   (svg-text svg heading-part
                             :x x :y title-y
-                            :fill (face-foreground
-                                   (tb-get-saved-random-face title))
+                            :fill (face-foreground (tb-random-face title))
                             :font-size font-size))
          (when time-string
            (svg-text svg time-string
