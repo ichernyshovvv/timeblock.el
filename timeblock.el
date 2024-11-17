@@ -307,10 +307,8 @@ Otherwise, return nil."
      (svg-rectangle svg 0 (alist-get 'y entry)
                     width font-height
                     :stroke "#cdcdcd" :stroke-width 1
-                    :fill (face-attribute
-                           (tb-get-saved-random-face
-                            (alist-get 'title entry))
-                           :background nil 'default)
+                    :fill (face-background (tb-get-saved-random-face
+                                            (alist-get 'title entry)))
                     :id (number-to-string ind))
      (svg-text svg (alist-get 'title entry)
                :x 0 :y (+ (alist-get 'y entry) font-size)
@@ -364,9 +362,7 @@ Otherwise, return nil."
           svg x y block-width block-height
           :stroke "#cdcdcd" :stroke-width 1
           :title (alist-get 'title entry)
-          :fill
-          (face-attribute
-           (tb-get-saved-random-face title) :background nil 'default)
+          :fill (face-background (tb-get-saved-random-face title))
           :id (number-to-string ind))
          ;; Setting the title of current entry
          (cl-loop for heading-part in heading-list
@@ -382,7 +378,7 @@ Otherwise, return nil."
                      :x (- (+ x block-width)
                            (* (length time-string) font-width))
                      :y (- (+ y block-height) 2)
-                     :fill (face-attribute 'tb-hours-line :background nil t)
+                     :fill (face-background 'tb-hours-line)
                      :font-size font-size)))))))
 
 (defun tb-add-hour-lines! (svg)
@@ -396,7 +392,7 @@ Otherwise, return nil."
         (setq y (+ y-start (round (* scale (- lines-iter min-hour) 60))))
         (svg-line svg left-padding y width y
                   :stroke-dasharray "4" :hour lines-iter
-                  :stroke (face-attribute 'tb-hours-line :background nil t))
+                  :stroke (face-background 'tb-hours-line))
         (svg-text svg (format "%d" lines-iter)
                   :y (+ y 5) :x 0 :font-size font-size
                   :fill (face-attribute 'default :foreground))))))
@@ -430,7 +426,7 @@ DATE is a decoded-time value."
          (font-size (aref (font-info (face-font face)) 2)))
     (svg-rectangle svg 0 0 width (window-font-height nil face)
                    :stroke "#cdcdcd" :stroke-width 1
-                   :fill (face-attribute 'region :background))
+                   :fill (face-background 'region))
     (svg-text svg (format-time-string "%Y-%m-%d %a" (encode-time date))
               :x 0 :y font-size :font-size font-size
               :fill (face-attribute 'default :foreground))))
@@ -529,9 +525,7 @@ This includes the following keys:
                                   (* min-hour 60)))
                       y-start)))
       (svg-line svg 0 y width y
-                :stroke (face-attribute
-                         'tb-current-time-indicator
-                         :background nil t)))))
+                :stroke (face-background 'tb-current-time-indicator)))))
 
 (defun tb-notime-p (date entry)
   "Return non-nil if ENTRY has no time"
@@ -639,7 +633,7 @@ If called interactively, the block is chosen via `completing-read'."
     (tb-unselect svg)
     (unless (dom-attr node 'mark)
       (dom-set-attribute node 'orig-fill (dom-attr node 'fill)))
-    (dom-set-attribute node 'fill (face-attribute 'tb-select :background))
+    (dom-set-attribute node 'fill (face-background 'tb-select))
     (dom-set-attribute node 'select t)
     (svg-possibly-update-image svg)))
 
@@ -666,7 +660,7 @@ EVENT is a mouse event."
     (when-let* ((node (tb-block-at-position svg (car posn) (cdr posn))))
       (unless (dom-attr node 'mark)
         (dom-set-attribute node 'orig-fill (dom-attr node 'fill)))
-      (dom-set-attribute node 'fill (face-attribute 'tb-select :background))
+      (dom-set-attribute node 'fill (face-background 'tb-select))
       (dom-set-attribute node 'select t))
     (svg-possibly-update-image svg)))
 
@@ -679,7 +673,7 @@ Otherwise, return nil."
               (inhibit-read-only t))
     (dom-set-attribute
      node 'fill (if (dom-attr node 'mark)
-                    (face-attribute 'tb-mark :background)
+                    (face-background 'tb-mark)
                   (dom-attr node 'orig-fill)))
     (dom-remove-attribute node 'select)
     (cons (dom-attr node 'x) (dom-attr node 'y))))
@@ -690,7 +684,7 @@ Otherwise, return nil."
   (when-let* ((svg (get-text-property (point) 'dom))
               (block (tb-get-selected svg))
               ((not (dom-attr block 'mark))))
-    (dom-set-attribute block 'fill (face-attribute 'tb-mark :background))
+    (dom-set-attribute block 'fill (face-background 'tb-mark))
     (dom-set-attribute block 'mark t))
   (tb-down))
 
@@ -704,7 +698,7 @@ Otherwise, return nil."
                             (string-match-p regexp
                                             (dom-attr x 'title))))))
       (dom-set-attribute block 'orig-fill (dom-attr block 'fill))
-      (dom-set-attribute block 'fill (face-attribute 'tb-mark :background))
+      (dom-set-attribute block 'fill (face-background 'tb-mark))
       (dom-set-attribute block 'mark t))
     (svg-possibly-update-image svg)))
 
@@ -836,7 +830,7 @@ If not found, select the first block from the bottom."
   (let ((inhibit-read-only t))
     (unless (dom-attr node 'mark)
       (dom-set-attribute node 'orig-fill (dom-attr node 'fill)))
-    (dom-set-attribute node 'fill (face-attribute 'tb-select :background))
+    (dom-set-attribute node 'fill (face-background 'tb-select))
     (dom-set-attribute node 'select t)
     (svg-possibly-update-image svg)
     (message "%s" (alist-get 'title
