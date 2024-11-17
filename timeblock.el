@@ -313,7 +313,7 @@ Otherwise, return nil."
      (svg-text svg (alist-get 'title entry)
                :x 0 :y (+ (alist-get 'y entry) font-size)
                :font-size font-size
-               :fill (face-attribute 'default :foreground))
+               :fill (face-foreground 'default))
      else do
      (when-let* ((length
                   (1+ (length
@@ -369,9 +369,8 @@ Otherwise, return nil."
                   for title-y from (+ y font-size) by font-size do
                   (svg-text svg heading-part
                             :x x :y title-y
-                            :fill (face-attribute
-                                   (tb-get-saved-random-face title)
-                                   :foreground nil 'default)
+                            :fill (face-foreground
+                                   (tb-get-saved-random-face title))
                             :font-size font-size))
          (when time-string
            (svg-text svg time-string
@@ -395,7 +394,7 @@ Otherwise, return nil."
                   :stroke (face-background 'tb-hours-line))
         (svg-text svg (format "%d" lines-iter)
                   :y (+ y 5) :x 0 :font-size font-size
-                  :fill (face-attribute 'default :foreground))))))
+                  :fill (face-foreground 'default))))))
 
 (defun tb-place-horizontally! (_svg entries)
   "Place ENTRIES horizontally to avoid intersections."
@@ -429,7 +428,7 @@ DATE is a decoded-time value."
                    :fill (face-background 'region))
     (svg-text svg (format-time-string "%Y-%m-%d %a" (encode-time date))
               :x 0 :y font-size :font-size font-size
-              :fill (face-attribute 'default :foreground))))
+              :fill (face-foreground 'default))))
 
 (defun tb-add-display-data! (svg entries)
   "Add display data to ENTRIES for SVG.
