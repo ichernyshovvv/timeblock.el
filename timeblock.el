@@ -191,11 +191,10 @@ KEYMAP is a keymap to use when the point is on the column."
 
 (defsubst tb-format-time (format-string time)
   "Use FORMAT-STRING to format the time value TIME."
-  (let ((time (copy-sequence time)))
-    (unless (dt-second time) (setf (dt-second time) 0))
-    (unless (dt-minute time) (setf (dt-minute time) 0))
-    (unless (dt-hour time) (setf (dt-hour time) 0))
-    (format-time-string format-string (encode-time time))))
+  (format-time-string
+   format-string (encode-time
+                  (decoded-time-set-defaults
+                   (copy-sequence time)))))
 
 (defun tb-get-selected (svg)
   "Get the node of the selected timeblock in SVG."
