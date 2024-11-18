@@ -556,20 +556,6 @@ SLOT should be specified as a plain symbol, not a keyword."
   (let ((time (copy-sequence time)))
     (dt-add time (make-decoded-time (intern (format ":%s" slot)) value))))
 
-(cl-defun tb-time-apply (time &key second minute hour day month year)
-  "Return new timestamp based on TIME with new slot values from keys."
-  (declare (indent 1))
-  ;; This code is borrowed from `ts-apply' function which is part of ts.el
-  ;; project written by Adam Porter
-  (let ((time (copy-sequence time)))
-    (and second (setf (dt-second time) second))
-    (and minute (setf (dt-minute time) minute))
-    (and hour (setf (dt-hour time) hour))
-    (and day (setf (dt-day time) day))
-    (and month (setf (dt-month time) month))
-    (and year (setf (dt-year time) year))
-    time))
-
 (defun tb-jump (id)
   "Jump to a block with specified ID.
 If called interactively, the block is chosen via `completing-read'."
