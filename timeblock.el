@@ -226,15 +226,6 @@ KEYMAP is a keymap to use when the point is on the column."
                    (and (tb-on dt-month = a b)
                         (tb-on dt-day < a b))))))))
 
-(defun tb-decoded< (a b)
-  "Return non-nil if A is earlier then B."
-  (cond
-   ((not b) nil)
-   ((not a) t)
-   (t (time-less-p
-       (encode-time a)
-       (encode-time b)))))
-
 (defun tb-date<= (a b)
   "Return non-nil if A's date is <= B's date."
   (cond
@@ -243,11 +234,10 @@ KEYMAP is a keymap to use when the point is on the column."
    ((not a) t)
    (t
     (or (tb-on dt-year < a b)
-        (and
-         (tb-on dt-year = a b)
-         (or (tb-on dt-month < a b)
-             (and (tb-on dt-month = a b)
-                  (tb-on dt-day <= a b))))))))
+        (and (tb-on dt-year = a b)
+             (or (tb-on dt-month < a b)
+                 (and (tb-on dt-month = a b)
+                      (tb-on dt-day <= a b))))))))
 
 (defsubst tb-random-face (title)
   "Get saved random face for TITLE.
