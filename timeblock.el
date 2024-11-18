@@ -431,61 +431,44 @@ This includes the following keys:
                  (cl-incf all-day-y font-height)
                  (list (cons 'block-height font-height)
                        (cons 'y y)))
-             (list
-              (cons 'time-string
-                    (and show-time
-                         (not (or end-date-later-p start-date-earlier-p))
-                         (concat
-                          (tb-format-time " %H:%M" start)
-                          (and end (tb-format-time "-%H:%M" end)))))
-              (cons 'block-height
-                    (1- (if (and start end)
-                            (max
-                             font-height
-                             (let ((y1
-                                    (if (or start-date-earlier-p
-                                            (< (dt-hour start) min-hour))
-                                        y-start
-                                      (+ (round (* scale
-                                                   (- (+ (* 60 (dt-hour start))
-                                                         (dt-minute start))
-                                                      (* min-hour 60))))
-                                         y-start)))
-                                   (y2
-                                    (if (or end-date-later-p
-                                            (< max-hour (dt-hour end)))
-                                        height
-                                      (+ (round (* scale
-                                                   (- (+ (* 60 (dt-hour end))
-                                                         (dt-minute end))
-                                                      (* min-hour 60))))
-                                         y-start))))
-                               (- y2 y1)))
-                          font-height)))
-              (cons 'y
-                    (let ((value (+ (round
-                                     (* (if (or start-date-earlier-p
-                                                (tb-decoded<
-                                                 (tb-time-apply date
-                                                   :hour (dt-hour start)
-                                                   :minute (dt-minute start))
-                                                 (tb-time-apply date
-                                                   :hour min-hour :minute 0
-                                                   :second 0)))
-                                            0
-                                          (- (+ (* 60 (dt-hour start))
-                                                (dt-minute start))
-                                             (* min-hour 60)))
-                                        scale))
-                                    1 y-start)))
-                      (if (< (- height value) font-height)
-                          (- height font-height)
-                        value)))
-              (cons 'n-day-indicator
-                    (cond
-                     ((and end-date-later-p start-date-earlier-p) "↕️")
-                     (end-date-later-p "⬇️")
-                     (start-date-earlier-p "⬆️")))))))))))
+             (let ((y1 (if (or start-date-earlier-p
+                               (< (dt-hour start) min-hour))
+                           y-start
+                         (+ (round (* scale
+                                      (- (+ (* 60 (dt-hour start))
+                                            (dt-minute start))
+                                         (* min-hour 60))))
+                            y-start))))
+               (list
+                (cons 'time-string
+                      (and show-time
+                           (not (or end-date-later-p start-date-earlier-p))
+                           (concat
+                            (tb-format-time " %H:%M" start)
+                            (and end (tb-format-time "-%H:%M" end)))))
+                (cons 'block-height
+                      (1- (if end
+                              (max
+                               font-height
+                               (let ((y2
+                                      (if (or end-date-later-p
+                                              (< max-hour (dt-hour end)))
+                                          height
+                                        (+ (round (* scale
+                                                     (- (+ (* 60 (dt-hour end))
+                                                           (dt-minute end))
+                                                        (* min-hour 60))))
+                                           y-start))))
+                                 (- y2 y1)))
+                            font-height)))
+                (cons 'y (if (< (- height y1) font-height)
+                             (- height font-height)
+                           y1))
+                (cons 'n-day-indicator
+                      (cond
+                       ((and end-date-later-p start-date-earlier-p) "↕️")
+                       (end-date-later-p "⬇️")
+                       (start-date-earlier-p "⬆️"))))))))))))
 
 (defun tb-add-current-time-line! (svg)
   "Add current time line to SVG."
