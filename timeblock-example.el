@@ -83,3 +83,10 @@
   (when-let* ((a (encode-time a))
               (b (encode-time b)))
     (/ (time-convert (time-subtract a b) 'integer) 60)))
+
+(defun timeblock-time-inc (slot value time)
+  "Return a new time object based on TIME with its SLOT incremented by VALUE.
+
+SLOT should be specified as a plain symbol, not a keyword."
+  (let ((time (copy-sequence time)))
+    (dt-add time (make-decoded-time (intern (format ":%s" slot)) value))))

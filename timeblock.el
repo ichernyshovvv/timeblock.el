@@ -543,13 +543,6 @@ This includes the following keys:
                        (<= min-hour (dt-hour end) max-hour)))))))
      entries)))
 
-(defun tb-time-inc (slot value time)
-  "Return a new time object based on TIME with its SLOT incremented by VALUE.
-
-SLOT should be specified as a plain symbol, not a keyword."
-  (let ((time (copy-sequence time)))
-    (dt-add time (make-decoded-time (intern (format ":%s" slot)) value))))
-
 (defun tb-jump (id)
   "Jump to a block with specified ID.
 If called interactively, the block is chosen via `completing-read'."
