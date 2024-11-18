@@ -64,7 +64,7 @@
       (setf (alist-get 'end entry) new-end-ts)
       (timeblock-redisplay-column))))
 
-(cl-defun tb-time-apply (time &key second minute hour day month year)
+(cl-defun timeblock-time-apply (time &key second minute hour day month year)
   "Return new timestamp based on TIME with new slot values from keys."
   (declare (indent 1))
   ;; This code is borrowed from `ts-apply' function which is part of ts.el

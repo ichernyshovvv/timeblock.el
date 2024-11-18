@@ -1,7 +1,31 @@
 * timeblock.el
 Emacs library for visualizing time data via interactive blocks
+** Contents
+
+- [[#installation][Installation]]
+- [[#usage][Usage example]]
+- [[#donations][Donations]]
+
+** Installation
+:PROPERTIES:
+:CUSTOM_ID: installation
+:END:
+
+#+begin_src elisp
+(use-package timeblock
+  :init
+  (unless (package-installed-p 'timeblock)
+    (package-vc-install
+     '(timeblock
+       :vc-backend Git
+       :url "https://github.com/ichernyshovvv/timeblock.el"
+       :branch "master"))))
+#+end_src
 
 ** Usage example
+:PROPERTIES:
+:CUSTOM_ID: usage
+:END:
 
 The following example allows to navigate between blocks via arrow
 keys/C-bpfb/hjkl/whatever-you-use.  You also can use the mouse by clicking on
@@ -76,4 +100,29 @@ supported).
       (setf (alist-get 'start entry) new-start-ts)
       (setf (alist-get 'end entry) new-end-ts)
       (timeblock-redisplay-column))))
+
+(cl-defun timeblock-time-apply (time &key second minute hour day month year)
+  "Return new timestamp based on TIME with new slot values from keys."
+  (declare (indent 1))
+  ;; This code is borrowed from `ts-apply' function which is part of ts.el
+  ;; project written by Adam Porter
+  (let ((time (copy-sequence time)))
+    (and second (setf (dt-second time) second))
+    (and minute (setf (dt-minute time) minute))
+    (and hour (setf (dt-hour time) hour))
+    (and day (setf (dt-day time) day))
+    (and month (setf (dt-month time) month))
+    (and year (setf (dt-year time) year))
+    time))
+
 #+end_src
+** Donations
+:PROPERTIES:
+:CUSTOM_ID: donations
+:END:
+
+- [[https://liberapay.com/ichernyshovvv][liberapay.com/ichernyshovvv]]
+- Monero:
+  ~444GDw7rkd3Mj5hi6ZzEXZ4QN565TFw4J5ithFcywsMnJn7dFsxWTEQ4vtSMQC1sckFBu7neS8yZZRLnY8EYpS4UNMEAvpL~
+
+[[images/monero-qr-address.png]]
