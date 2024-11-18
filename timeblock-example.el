@@ -77,3 +77,9 @@
     (and month (setf (dt-month time) month))
     (and year (setf (dt-year time) year))
     time))
+
+(defun timeblock-time-diff (a b)
+  "Return difference between times A and B in minutes."
+  (when-let* ((a (encode-time a))
+              (b (encode-time b)))
+    (/ (time-convert (time-subtract a b) 'integer) 60)))

@@ -226,12 +226,6 @@ KEYMAP is a keymap to use when the point is on the column."
                    (and (tb-on dt-month = a b)
                         (tb-on dt-day < a b))))))))
 
-(defun tb-time-diff (a b)
-  "Return difference between times A and B in minutes."
-  (when-let* ((a (encode-time a))
-              (b (encode-time b)))
-    (/ (time-convert (time-subtract a b) 'integer) 60)))
-
 (defun tb-decoded< (a b)
   "Return non-nil if A is earlier then B."
   (cond
