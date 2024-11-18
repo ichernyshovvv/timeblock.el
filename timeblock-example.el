@@ -70,12 +70,12 @@
   ;; This code is borrowed from `ts-apply' function which is part of ts.el
   ;; project written by Adam Porter
   (let ((time (copy-sequence time)))
-    (and second (setf (dt-second time) second))
-    (and minute (setf (dt-minute time) minute))
-    (and hour (setf (dt-hour time) hour))
-    (and day (setf (dt-day time) day))
-    (and month (setf (dt-month time) month))
-    (and year (setf (dt-year time) year))
+    (and second (setf (decoded-time-second time) second))
+    (and minute (setf (decoded-time-minute time) minute))
+    (and hour (setf (decoded-time-hour time) hour))
+    (and day (setf (decoded-time-day time) day))
+    (and month (setf (decoded-time-month time) month))
+    (and year (setf (decoded-time-year time) year))
     time))
 
 (defun timeblock-time-diff (a b)
@@ -89,4 +89,4 @@
 
 SLOT should be specified as a plain symbol, not a keyword."
   (let ((time (copy-sequence time)))
-    (dt-add time (make-decoded-time (intern (format ":%s" slot)) value))))
+    (decoded-time-add time (make-decoded-time (intern (format ":%s" slot)) value))))
