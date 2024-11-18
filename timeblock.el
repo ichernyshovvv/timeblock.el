@@ -482,7 +482,7 @@ This includes the following keys:
                 :stroke (face-background 'tb-current-time-indicator)))))
 
 (defun tb-notime-p (date entry)
-  "Return non-nil if ENTRY has no time"
+  "Return non-nil if ENTRY has no time."
   (let ((start (alist-get 'start entry))
         (end (alist-get 'end entry)))
     (and (not (or (dt-hour start) (dt-minute start) (dt-second start)
@@ -516,8 +516,8 @@ This includes the following keys:
   (when-let* ((svg (get-text-property (point) 'dom))
               (entries-function (get-text-property (point) 'entries-function)))
     (let ((keymap (get-text-property (point) 'keymap)))
-      (map-let ( width height min-hour max-hour show-time
-                 date show-date show-all-day-entries entries)
+      (map-let ( width height date show-all-day-entries
+                 scope show-time show-date)
           (dom-attributes svg)
         (set-marker (dom-attr svg :image) nil)
         (let ((entries (funcall entries-function)))
