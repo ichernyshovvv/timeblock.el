@@ -442,32 +442,25 @@ This includes the following keys:
                     (1- (if (and start end)
                             (max
                              font-height
-                             (round
-                              (* (tb-time-diff
-                                  (if (or end-date-later-p
-                                          (tb-decoded<
-                                           (tb-time-apply date
-                                             :hour (1- max-hour)
-                                             :minute 59 :second 0)
-                                           (tb-time-apply date
-                                             :hour (dt-hour end)
-                                             :minute (dt-minute end))))
-                                      (tb-time-apply date
-                                        :hour (1- max-hour)
-                                        :minute 59 :second 0)
-                                    end)
-                                  (if (or start-date-earlier-p
-                                          (tb-decoded<
-                                           (tb-time-apply date
-                                             :hour (dt-hour start)
-                                             :minute (dt-minute start))
-                                           (tb-time-apply date
-                                             :hour min-hour :minute 0
-                                             :second 0)))
-                                      (tb-time-apply date
-                                        :hour min-hour :minute 0 :second 0)
-                                    start))
-                                 scale)))
+                             (let ((y1
+                                    (if (or start-date-earlier-p
+                                            (< (dt-hour start) min-hour))
+                                        y-start
+                                      (+ (round (* scale
+                                                   (- (+ (* 60 (dt-hour start))
+                                                         (dt-minute start))
+                                                      (* min-hour 60))))
+                                         y-start)))
+                                   (y2
+                                    (if (or end-date-later-p
+                                            (< max-hour (dt-hour end)))
+                                        height
+                                      (+ (round (* scale
+                                                   (- (+ (* 60 (dt-hour end))
+                                                         (dt-minute end))
+                                                      (* min-hour 60))))
+                                         y-start))))
+                               (- y2 y1)))
                           font-height)))
               (cons 'y
                     (let ((value (+ (round
